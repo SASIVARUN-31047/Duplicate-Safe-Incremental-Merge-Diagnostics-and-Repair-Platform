@@ -13,7 +13,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  // Deployed Render backend URL default fallback
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://duplicate-safe-incremental-merge.onrender.com";
 
   const checkHealth = async () => {
     setLoading(true);
@@ -44,25 +45,24 @@ export default function Home() {
         </h2>
         <p className="text-sm text-slate-600 mb-4">
           Welcome to the Duplicate-Safe Incremental Merge Diagnostics and Repair Platform.
-          Phase 1 scaffolding ensures frontend to backend connectivity before building database schemas and logic.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="border border-slate-200 rounded-md p-4 bg-slate-50">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-              Frontend Service (Next.js)
+              Frontend Service (Vercel)
             </h3>
             <div className="flex items-center space-x-2">
               <span className="h-3 w-3 rounded-full bg-emerald-500 inline-block"></span>
               <span className="text-sm font-medium text-slate-800">Operational</span>
             </div>
-            <p className="text-xs text-slate-500 mt-1 font-mono">React 18 + Tailwind CSS</p>
+            <p className="text-xs text-slate-500 mt-1 font-mono">Next.js App Router + Tailwind CSS</p>
           </div>
 
           <div className="border border-slate-200 rounded-md p-4 bg-slate-50">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Backend Service (FastAPI)
+                Backend Service (Render)
               </h3>
               <button
                 onClick={checkHealth}
@@ -75,7 +75,7 @@ export default function Home() {
             {loading ? (
               <div className="flex items-center space-x-2">
                 <span className="h-3 w-3 rounded-full bg-amber-400 animate-pulse inline-block"></span>
-                <span className="text-sm font-medium text-slate-600">Testing connection...</span>
+                <span className="text-sm font-medium text-slate-600">Connecting to Render backend...</span>
               </div>
             ) : error ? (
               <div>
@@ -108,7 +108,7 @@ export default function Home() {
         <ul className="space-y-2 text-xs text-slate-600">
           <li className="flex items-center space-x-2">
             <span className="font-semibold text-slate-800">1. Incoming Data Batch:</span>
-            <span>FastAPI seed endpoints & PostgreSQL batch tracking</span>
+            <span>FastAPI seed endpoints & SQLite batch tracking</span>
           </li>
           <li className="flex items-center space-x-2">
             <span className="font-semibold text-slate-800">2. Key Registry:</span>
