@@ -13,7 +13,7 @@ from typing import List, Optional, Any, Dict
 from app.database import SessionLocal, engine
 from app.models import (
     Base, IncomingBatch, IncomingRow, DuplicateFlag, 
-    RepairDecision, AuditLog, MainGoldenRecord, LineageAttribution
+    RepairDecision, AuditLog, MainGoldenRecord, LineageAttribution, KeyRegistry
 )
 from app.engine import process_batch, parse_time
 from app.seed import seed_database
