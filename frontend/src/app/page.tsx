@@ -51,7 +51,6 @@ export default function Home() {
   const [ingestMode, setIngestMode] = useState<"json" | "file">("json");
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [showIngest, setShowIngest] = useState(false);
   const [customPayload, setCustomPayload] = useState(
     JSON.stringify([
       {
