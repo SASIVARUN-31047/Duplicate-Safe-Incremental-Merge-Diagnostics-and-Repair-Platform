@@ -269,3 +269,33 @@ async def upload_batch(
     # Process immediately
     process_batch(batch.id, db)
     return {"message": f"Successfully processed {len(rows)} rows from {file.filename}", "batch_id": batch.id}
+
+from fastapi.responses import StreamingResponse
+
+@app.get("/api/export/golden")
+def export_golden_records(db: Session = Depends(get_db)):
+    records = db.query(MainGoldenRecord).all()
+    
+    # Flatten the payload into standard columns
+    data = []
+    for r in records:
+        row_data = r.payload.copy()
+        row_data["_golden_id"] = r.id
+        row_data["_winning_source"] = r.winning_source
+        row_data["_merged_at"] = r.merged_at.isoformat() if r.merged_at else None
+        data.append(row_data)
+        
+    df = pd.DataFrame(data)
+    
+    output = io.BytesIO()
+    # Write to Excel
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Golden Records")
+        
+    output.seek(0)
+    
+    return StreamingResponse(
+        output, 
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+        headers={"Content-Disposition": "attachment; filename=golden_records.xlsx"}
+    )

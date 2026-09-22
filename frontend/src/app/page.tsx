@@ -168,6 +168,13 @@ export default function Home() {
           <p className="text-sm text-slate-500">Duplicate-Safe Incremental Merge Platform </p>
         </div>
         <div className="space-x-3">
+          <a 
+            href={`${apiUrl}/api/export/golden`}
+            download="golden_records.xlsx"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-medium transition inline-block"
+          >
+            Download Updated Excel
+          </a>
           <button 
             onClick={() => setShowIngest(!showIngest)}
             className="bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded text-sm font-medium transition"
@@ -220,13 +227,29 @@ export default function Home() {
             <div className="py-4">
               <p className="text-xs text-slate-500 mb-4">Upload an Excel (.xlsx, .xls) or CSV file. The columns should map to your entity schema (e.g. customer_id, order_date, amount, event_timestamp).</p>
               
-              <div className="flex items-center space-x-4">
+              <div 
+                className="flex flex-col items-center justify-center space-y-4 border-2 border-dashed border-slate-300 rounded-lg p-8 bg-white hover:bg-slate-50 transition"
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    setFileToUpload(e.dataTransfer.files[0]);
+                  }
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-sm text-slate-600 font-medium">{fileToUpload ? fileToUpload.name : "Drag & drop an Excel or CSV file here"}</p>
+                  <p className="text-xs text-slate-400 mt-1">or click below to browse</p>
+                </div>
                 <input 
                   type="file" 
                   accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                   onChange={(e) => setFileToUpload(e.target.files ? e.target.files[0] : null)}
                   className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
+              </div>
+              <div className="flex items-center space-x-4 mt-4">
                 <button 
                   onClick={async () => {
                     if (!fileToUpload) return alert("Please select a file first");
@@ -396,12 +419,38 @@ export default function Home() {
 
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="bg-slate-900 p-2 rounded border border-slate-700 overflow-x-auto">
-                          <div className="text-slate-500 font-medium mb-1">Existing Payload</div>
-                          <pre className="text-slate-300">{JSON.stringify(rootCause.existing_payload, null, 2)}</pre>
+                          <div className="text-slate-500 font-medium mb-2 pb-1 border-b border-slate-700 flex items-center justify-between">
+                            <span>Existing (Unupdated)</span>
+                            <span className="bg-rose-900/50 text-rose-400 px-1.5 py-0.5 rounded text-[10px]">Old</span>
+                          </div>
+                          <div className="space-y-1 font-mono">
+                            {Object.entries(rootCause.existing_payload || {}).map(([k, v]) => {
+                              const inV = rootCause.incoming_payload?.[k];
+                              const isDiff = inV !== undefined && v !== inV;
+                              return (
+                                <div key={k} className={`${isDiff ? 'bg-rose-900/30 -mx-2 px-2 border-l-2 border-rose-500 text-rose-300' : 'text-slate-300'}`}>
+                                  <span className="text-slate-500">{k}:</span> {JSON.stringify(v)}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                         <div className="bg-slate-900 p-2 rounded border border-slate-700 overflow-x-auto">
-                          <div className="text-slate-500 font-medium mb-1">Incoming Payload</div>
-                          <pre className="text-blue-300">{JSON.stringify(rootCause.incoming_payload, null, 2)}</pre>
+                          <div className="text-slate-500 font-medium mb-2 pb-1 border-b border-slate-700 flex items-center justify-between">
+                            <span>Incoming (Updated)</span>
+                            <span className="bg-emerald-900/50 text-emerald-400 px-1.5 py-0.5 rounded text-[10px]">New</span>
+                          </div>
+                          <div className="space-y-1 font-mono">
+                            {Object.entries(rootCause.incoming_payload || {}).map(([k, v]) => {
+                              const exV = rootCause.existing_payload?.[k];
+                              const isDiff = exV !== undefined && v !== exV;
+                              return (
+                                <div key={k} className={`${isDiff ? 'bg-emerald-900/30 -mx-2 px-2 border-l-2 border-emerald-500 text-emerald-300' : 'text-slate-300'}`}>
+                                  <span className="text-slate-500">{k}:</span> {JSON.stringify(v)}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
 
