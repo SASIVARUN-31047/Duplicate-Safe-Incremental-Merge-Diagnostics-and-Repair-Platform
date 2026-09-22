@@ -243,12 +243,10 @@ async def upload_batch(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error parsing file: {str(e)}")
 
-    # Clean DataFrame (handle NaNs)
-    df = df.fillna("")
-    
-    # Optional: convert specific columns or let the engine handle string matching
-    # Convert back to dict
-    rows = df.to_dict(orient="records")
+    # Convert DataFrame to JSON strings safely, handling Timestamps and NaNs
+    import json
+    json_str = df.to_json(orient="records", date_format="iso")
+    rows = json.loads(json_str)
     
     import hashlib
     def compute_hash(p: dict, keys: list[str]) -> str:
