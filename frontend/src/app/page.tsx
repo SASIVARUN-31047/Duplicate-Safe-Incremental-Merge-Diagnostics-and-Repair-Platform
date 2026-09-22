@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -122,7 +122,7 @@ export default function Home() {
       <div className="flex justify-between items-center border-b pb-4">
         <div>
           <h1 className="text-2xl font-semibold text-slate-800">Merge Diagnostics & Repair</h1>
-          <p className="text-sm text-slate-500">Duplicate-Safe Incremental Merge Platform (DEAI-10)</p>
+          <p className="text-sm text-slate-500">Duplicate-Safe Incremental Merge Platform </p>
         </div>
         <button 
           onClick={handleSeed}
