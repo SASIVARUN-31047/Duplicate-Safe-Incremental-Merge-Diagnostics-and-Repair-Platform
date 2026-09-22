@@ -47,6 +47,45 @@ export default function Home() {
   const [selectedDuplicate, setSelectedDuplicate] = useState<number | null>(null);
   const [rootCause, setRootCause] = useState<RootCause | null>(null);
   const [rcLoading, setRcLoading] = useState(false);
+  const [showIngest, setShowIngest] = useState(false);
+  const [customPayload, setCustomPayload] = useState(
+    JSON.stringify([
+      {
+        "customer_id": "CUST-999",
+        "order_date": "2026-09-22",
+        "customer_name": "Presentation Test User",
+        "amount": 100.00,
+        "event_timestamp": "2026-09-22T12:00:00Z",
+        "source_system": "WEB_STORE",
+        "source_rank": 2
+      }
+    ], null, 2)
+  );
+
+  const handleCustomIngest = async () => {
+    try {
+      const rows = JSON.parse(customPayload);
+      const res = await fetch(`${apiUrl}/api/batches/ingest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          batch_id: `manual-batch-${Date.now()}`,
+          source_system: "MANUAL_UI",
+          entity_name: "customer_orders",
+          rows: Array.isArray(rows) ? rows : [rows]
+        })
+      });
+      if (res.ok) {
+        setShowIngest(false);
+        fetchData();
+      } else {
+        alert("Backend rejected the payload. Check console.");
+      }
+    } catch (err) {
+      alert("Invalid JSON format");
+    }
+  };
+
 
   // For local development, assume backend runs on 8000
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -124,13 +163,44 @@ export default function Home() {
           <h1 className="text-2xl font-semibold text-slate-800">Merge Diagnostics & Repair</h1>
           <p className="text-sm text-slate-500">Duplicate-Safe Incremental Merge Platform </p>
         </div>
-        <button 
-          onClick={handleSeed}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition"
-        >
-          Seed Demo Data
-        </button>
+        <div className="space-x-3">
+          <button 
+            onClick={() => setShowIngest(!showIngest)}
+            className="bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded text-sm font-medium transition"
+          >
+            + Custom Ingestion
+          </button>
+          <button 
+            onClick={handleSeed}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition"
+          >
+            Seed Demo Data
+          </button>
+        </div>
       </div>
+
+      
+      {showIngest && (
+        <div className="bg-slate-50 border border-slate-200 rounded p-4 shadow-inner">
+          <h3 className="font-semibold text-slate-800 mb-2 text-sm">Live Custom Ingestion (JSON Array)</h3>
+          <p className="text-xs text-slate-500 mb-3">
+            Paste raw JSON rows here to simulate an incoming batch during your presentation. The engine will instantly parse it, check for duplicates against the golden records, and appear in the tables below.
+          </p>
+          <textarea 
+            className="w-full h-48 bg-white border border-slate-300 rounded p-3 text-xs font-mono text-slate-700 focus:outline-none focus:border-blue-500"
+            value={customPayload}
+            onChange={(e) => setCustomPayload(e.target.value)}
+          ></textarea>
+          <div className="mt-3 flex justify-end">
+            <button 
+              onClick={handleCustomIngest}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded text-sm font-medium transition"
+            >
+              Submit Batch to Engine
+            </button>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-sm text-slate-500">Loading dashboard data...</div>
