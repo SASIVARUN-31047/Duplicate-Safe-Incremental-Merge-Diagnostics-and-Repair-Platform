@@ -21,12 +21,12 @@ export default function RootLayout({
                 Duplicate-Safe Merge Platform
               </h1>
               <p className="text-xs text-slate-500 font-mono">
-                DEAI-10 | Diagnostics & Deterministic Repair
+                Diagnostics & Deterministic Repair
               </p>
             </div>
             <div className="flex items-center space-x-2">
               <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
-                Phase 1 Scaffolding
+               
               </span>
             </div>
           </div>
